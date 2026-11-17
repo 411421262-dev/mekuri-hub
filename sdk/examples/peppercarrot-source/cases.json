@@ -1,0 +1,228 @@
+{
+  "responses": {
+    "https://www.peppercarrot.com/0_sources/episodes-v1.json": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "[{\"name\": \"ep39_The-Long-Episode\", \"pages\": {\"1\": \"Pepper-and-Carrot_by-David-Revoy_E39P01.jpg\", \"10\": \"Pepper-and-Carrot_by-David-Revoy_E39P10.jpg\", \"11\": \"Pepper-and-Carrot_by-David-Revoy_E39P11.jpg\", \"2\": \"Pepper-and-Carrot_by-David-Revoy_E39P02.jpg\", \"3\": \"Pepper-and-Carrot_by-David-Revoy_E39P03.jpg\", \"4\": \"Pepper-and-Carrot_by-David-Revoy_E39P04.jpg\", \"5\": \"Pepper-and-Carrot_by-David-Revoy_E39P05.jpg\", \"6\": \"Pepper-and-Carrot_by-David-Revoy_E39P06.jpg\", \"7\": \"Pepper-and-Carrot_by-David-Revoy_E39P07.jpg\", \"8\": \"Pepper-and-Carrot_by-David-Revoy_E39P08.jpg\", \"9\": \"Pepper-and-Carrot_by-David-Revoy_E39P09.jpg\", \"cover\": \"Pepper-and-Carrot_by-David-Revoy_E39.jpg\", \"title\": \"Pepper-and-Carrot_by-David-Revoy_E39P00.jpg\", \"credits\": \"Pepper-and-Carrot_by-David-Revoy_E39P12.jpg\"}, \"total_pages\": 12, \"translated_languages\": [\"cn\", \"en\"]}, {\"name\": \"ep01_The-Start\", \"pages\": {\"1\": \"Pepper-and-Carrot_by-David-Revoy_E01P01.jpg\", \"cover\": \"Pepper-and-Carrot_by-David-Revoy_E01.jpg\", \"title\": \"Pepper-and-Carrot_by-David-Revoy_E01P00.jpg\", \"credits\": \"Pepper-and-Carrot_by-David-Revoy_E01P02.jpg\"}, \"total_pages\": 2, \"translated_languages\": [\"cn\", \"en\", \"fr\", \"ja\"]}, {\"name\": \"ep04_The-Animated-Episode\", \"pages\": {\"1\": \"Pepper-and-Carrot_by-David-Revoy_E04P01.jpg\", \"2\": \"Pepper-and-Carrot_by-David-Revoy_E04P02.jpg\", \"3\": \"Pepper-and-Carrot_by-David-Revoy_E04P03.jpg\", \"4\": \"Pepper-and-Carrot_by-David-Revoy_E04P04.jpg\", \"5\": \"Pepper-and-Carrot_by-David-Revoy_E04P05.gif\", \"cover\": \"Pepper-and-Carrot_by-David-Revoy_E04.jpg\", \"title\": \"Pepper-and-Carrot_by-David-Revoy_E04P00.jpg\", \"credits\": \"Pepper-and-Carrot_by-David-Revoy_E04P06.jpg\"}, \"total_pages\": 6, \"translated_languages\": [\"cn\", \"en\", \"fr\"]}]"
+    }
+  },
+  "cases": [
+    {
+      "name": "搜尋空字串列出預設中文版本",
+      "call": "search",
+      "args": [
+        "",
+        1
+      ],
+      "expect": {
+        "items": [
+          {
+            "workKey": "peppercarrot:cn",
+            "title": "Pepper&Carrot · 中文（簡體）",
+            "coverUrl": "https://www.peppercarrot.com/0_sources/ep01_The-Start/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E01.jpg",
+            "subtitle": "David Revoy · CC BY 4.0"
+          }
+        ],
+        "hasMore": false
+      }
+    },
+    {
+      "name": "大小寫與空白不影響搜尋",
+      "eval": "return (await __plugin.search('PePPer & Carrot', 1)).items[0].workKey",
+      "expect": "peppercarrot:cn"
+    },
+    {
+      "name": "不相關搜尋沒有結果",
+      "call": "search",
+      "args": [
+        "unrelated",
+        1
+      ],
+      "expect": {
+        "items": [],
+        "hasMore": false
+      }
+    },
+    {
+      "name": "第二頁沒有重複結果",
+      "call": "search",
+      "args": [
+        "",
+        2
+      ],
+      "expect": {
+        "items": [],
+        "hasMore": false
+      }
+    },
+    {
+      "name": "拒絕無效頁碼",
+      "call": "search",
+      "args": [
+        "",
+        0
+      ],
+      "expectError": "PLUGIN_ERROR"
+    },
+    {
+      "name": "作品資訊包含來源授權與署名",
+      "eval": "const w = await __plugin.getWork('peppercarrot:cn'); return [w.readingDirection, w.author.includes('David Revoy'), w.description.includes('CC BY 4.0'), w.description.includes('/en/about/index.html'), w.url]",
+      "expect": [
+        "ltr",
+        true,
+        true,
+        true,
+        "https://www.peppercarrot.com/cn/webcomics/index.html"
+      ]
+    },
+    {
+      "name": "章節依話數由舊到新排序",
+      "call": "getChapters",
+      "args": [
+        "peppercarrot:cn"
+      ],
+      "expect": [
+        {
+          "chapterKey": "peppercarrot:cn/ep01_The-Start",
+          "title": "1 · The Start",
+          "number": 1
+        },
+        {
+          "chapterKey": "peppercarrot:cn/ep04_The-Animated-Episode",
+          "title": "4 · The Animated Episode",
+          "number": 4
+        },
+        {
+          "chapterKey": "peppercarrot:cn/ep39_The-Long-Episode",
+          "title": "39 · The Long Episode",
+          "number": 39
+        }
+      ]
+    },
+    {
+      "name": "語言沒有完整翻譯時不列出章節",
+      "eval": "return (await __plugin.getChapters('peppercarrot:ja')).map(c => c.number)",
+      "expect": [
+        1
+      ]
+    },
+    {
+      "name": "頁面包含標題頁與署名頁",
+      "call": "getPages",
+      "args": [
+        "peppercarrot:cn/ep01_The-Start"
+      ],
+      "expect": [
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep01_The-Start/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E01P00.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep01_The-Start/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E01P01.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep01_The-Start/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E01P02.jpg"
+        }
+      ]
+    },
+    {
+      "name": "保留動畫頁面的 GIF 副檔名",
+      "eval": "return (await __plugin.getPages('peppercarrot:cn/ep04_The-Animated-Episode'))[5].url",
+      "expect": "https://www.peppercarrot.com/0_sources/ep04_The-Animated-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E04P05.gif"
+    },
+    {
+      "name": "十頁以上以數字排序，署名頁在最後",
+      "call": "getPages",
+      "args": [
+        "peppercarrot:cn/ep39_The-Long-Episode"
+      ],
+      "expect": [
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P00.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P01.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P02.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P03.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P04.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P05.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P06.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P07.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P08.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P09.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P10.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P11.jpg"
+        },
+        {
+          "url": "https://www.peppercarrot.com/0_sources/ep39_The-Long-Episode/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E39P12.jpg"
+        }
+      ]
+    },
+    {
+      "name": "已加入書庫的英文版本不受搜尋設定影響",
+      "eval": "return (await __plugin.getPages('peppercarrot:en/ep01_The-Start'))[0].url",
+      "expect": "https://www.peppercarrot.com/0_sources/ep01_The-Start/low-res/en_Pepper-and-Carrot_by-David-Revoy_E01P00.jpg"
+    },
+    {
+      "name": "拒絕不存在的語言版本章節",
+      "call": "getPages",
+      "args": [
+        "peppercarrot:ja/ep04_The-Animated-Episode"
+      ],
+      "expectError": "PLUGIN_ERROR"
+    },
+    {
+      "name": "拒絕不存在的章節",
+      "call": "getPages",
+      "args": [
+        "peppercarrot:cn/ep99_Missing"
+      ],
+      "expectError": "PLUGIN_ERROR"
+    },
+    {
+      "name": "拒絕作品代碼注入網址",
+      "call": "getWork",
+      "args": [
+        "https://evil.test"
+      ],
+      "expectError": "PLUGIN_ERROR"
+    },
+    {
+      "name": "拒絕章節路徑注入",
+      "call": "getPages",
+      "args": [
+        "peppercarrot:cn/../../evil"
+      ],
+      "expectError": "PLUGIN_ERROR"
+    },
+    {
+      "name": "快取避免同次工作流程重複請求",
+      "eval": "await __plugin.getChapters('peppercarrot:cn'); await __plugin.getWork('peppercarrot:cn'); await __plugin.getPages('peppercarrot:cn/ep01_The-Start'); return true",
+      "expect": true
+    },
+    {
+      "name": "未宣告網域被沙盒拒絕",
+      "eval": "await mekuri.http.request({url:'https://evil.test/'})",
+      "expectError": "PLUGIN_DOMAIN_DENIED"
+    }
+  ]
+}

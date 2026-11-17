@@ -1,0 +1,36 @@
+{
+  "id": "io.github.mekuri.peppercarrot",
+  "name": "Pepper&Carrot（非官方插件）",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "author": "mekuri contributors",
+  "description": "透過官方公開 API 閱讀 David Revoy 的 Pepper&Carrot（CC BY 4.0）。保留標題頁與作者、翻譯者署名頁；本插件與原作者無隸屬關係。",
+  "homepage": "https://www.peppercarrot.com/",
+  "domains": ["www.peppercarrot.com"],
+  "tags": ["webcomic", "CC-BY-4.0", "en", "zh-CN", "fr", "ja"],
+  "readingDirection": "ltr",
+  "settings": [
+    {
+      "key": "language",
+      "type": "select",
+      "label": "搜尋的版本（已加入書庫的作品保持原語言）",
+      "options": [
+        { "value": "cn", "label": "中文（簡體，官方語言代碼 cn）" },
+        { "value": "en", "label": "English" },
+        { "value": "fr", "label": "Français" },
+        { "value": "ja", "label": "日本語" }
+      ],
+      "default": "cn"
+    },
+    {
+      "key": "resolution",
+      "type": "select",
+      "label": "圖片解析度",
+      "options": [
+        { "value": "low-res", "label": "標準（較省流量）" },
+        { "value": "hi-res", "label": "高解析度" }
+      ],
+      "default": "low-res"
+    }
+  ]
+}

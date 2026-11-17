@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit -p sdk/template",
     "validate:pr": "node scripts/validate-pr.mjs",
     "build:index": "node scripts/build-index.mjs",
-    "build:example": "node scripts/build-example.mjs"
+    "build:example": "node scripts/build-example.mjs",
+    "check:peppercarrot": "node scripts/check-peppercarrot.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"
