@@ -94,3 +94,21 @@ test('init 拒絕不合法的 id', () => {
     cleanup(dir);
   }
 });
+
+test('CLI validate 會建置最新原始碼，不接受過期的 dist', () => {
+  const dir = tempDir('mekuri-validate-');
+  try {
+    const project = join(dir, 'plugin');
+    initProject(project);
+    // 新專案無須先手動 build 就能驗證。
+    const out = execFileSync(process.execPath, [CLI, 'validate', project]).toString();
+    assert.match(out, /通過：/);
+    // 上次的 dist 仍可載入，但這次原始碼已少了一個必要匯出。
+    const src = join(project, 'src', 'index.ts');
+    writeFileSync(src, readFileSync(src, 'utf8').replace('export async function getPages', 'async function getPages'));
+    assert.throws(() => execFileSync(process.execPath, [CLI, 'validate', project], { stdio: 'pipe' }),
+      (err) => err.status === 1 && /沒有匯出必要函式 getPages/.test(err.stdout.toString()));
+  } finally {
+    cleanup(dir);
+  }
+});

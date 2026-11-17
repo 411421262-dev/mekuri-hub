@@ -79,6 +79,8 @@ async function main(argv) {
       let bytes;
       if (target.endsWith('.mekuri-plugin')) bytes = readFileSync(target);
       else {
+        // 和 test／pack 一樣建置原始碼，避免驗證到過期的 dist。
+        if (existsSync(join(target, 'src'))) await buildProject(target);
         const { manifest, code } = loadPlugin(target);
         const icon = manifest.icon !== undefined ? readFileSync(join(target, manifest.icon)) : undefined;
         bytes = createPackage({ manifest, code, icon });

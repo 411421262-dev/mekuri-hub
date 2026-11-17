@@ -29,6 +29,10 @@ for (const { path, bytes } of icons) {
   }
 }
 if (values.check) {
+  if (problems.length) {
+    console.log(`插件索引檢查失敗：${problems.length} 個插件無法加入索引`);
+    process.exit(1);
+  }
   if (changed || iconsChanged) {
     console.log('index.json 或插件圖示不是最新，請執行 npm run build:index');
     process.exit(1);

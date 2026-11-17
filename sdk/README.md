@@ -166,6 +166,8 @@ mekuri.env;                               // { appVersion, platform: 'windows' |
 ```bash
 npm run pack:plugin   # 建置並產生 dist/<version>.mekuri-plugin
 npm run validate      # 執行與集散地 CI 相同的插件包檢查
+
+對專案資料夾執行 `validate` 時會先重新建置原始碼，避免檢查到過期的 `dist/`；對 `.mekuri-plugin` 檔執行時則檢查該檔案本身。
 ```
 
 `.mekuri-plugin` 是 ZIP 檔，內含 `manifest.json`、主程式與圖示，總大小不得超過 50 MB。打包時使用固定的時間戳，同樣的內容會產生同樣的 sha256。

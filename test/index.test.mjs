@@ -53,6 +53,19 @@ test('repo 內的範例插件包與 sdk/examples 一致', () => {
   execFileSync(process.execPath, ['scripts/build-example.mjs', '--check'], { cwd: ROOT });
 });
 
+test('build-index --check 在無效插件被略過時仍須失敗', () => {
+  const repo = new TempRepo();
+  try {
+    repo.write('plugins/broken.id/manifest.json', '{');
+    repo.write('index.json', JSON.stringify({ apiVersion: 1, generatedAt: '2026-01-01T00:00:00Z', plugins: [] }));
+    repo.commit();
+    assert.throws(() => execFileSync(process.execPath, ['scripts/build-index.mjs', '--repo', repo.dir, '--check'], { cwd: ROOT, stdio: 'pipe' }),
+      (err) => err.status === 1 && /無法讀取/.test(err.stdout.toString()));
+  } finally {
+    repo.dispose();
+  }
+});
+
 test('repo 內的 index.json 格式正確，且列出的插件包 sha256 相符', () => {
   // 插件 PR 不需要更新 index.json（合併後由 CI 產生），所以這裡只檢查已列出的項目
   const committed = JSON.parse(readFileSync(join(ROOT, 'index.json'), 'utf8'));

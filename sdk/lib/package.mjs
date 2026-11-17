@@ -103,6 +103,8 @@ export function createPackage({ manifest, code, icon }) {
     if (!icon) throw new Error(`manifest.icon 指定了 ${manifest.icon}，但沒有提供圖示檔`);
     entries[manifest.icon] = icon;
   }
+  const total = Object.values(entries).reduce((n, bytes) => n + bytes.length, 0);
+  if (total > MAX_PACKAGE_BYTES) throw new Error(`解壓後大小 ${fmtBytes(total)} 超過上限 50 MB`);
   const bytes = zipSync(entries, { level: 9, mtime: FIXED_MTIME });
   if (bytes.length > MAX_PACKAGE_BYTES) throw new Error(`插件包大小 ${fmtBytes(bytes.length)} 超過上限 50 MB`);
   return bytes;
